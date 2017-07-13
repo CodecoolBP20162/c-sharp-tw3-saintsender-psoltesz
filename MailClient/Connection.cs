@@ -1,35 +1,33 @@
 ﻿using MailKit.Net.Imap;
-using System;
 using System.Collections.Generic;
 using MailKit;
+using MimeKit;
+using MailKit.Net.Smtp;
+using System.Windows.Forms;
 
 namespace MailClient
 {
     class Connection
     {
-        public List<Mail> GetMails(string user, string password)
+        public string[] Credentials { get; set; }
+
+
+        public List<Mail> GetMails()
         {
             using (var client = new ImapClient())
             {
                 List<Mail> fetchedMails = new List<Mail>();
-                // For demo-purposes, accept all SSL certificates
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
                 client.Connect("imap.gmail.com", 993, true);
 
-                // Note: since we don't have an OAuth2 token, disable
-                // the XOAUTH2 authentication mechanism.
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
 
-                client.Authenticate(user, password);
-                // "codecool.b1ts.pls@gmail.com", "mergeconflict"
+                client.Authenticate(Credentials[0], Credentials[1]);
+                // codecool.b1ts.pls@gmail.com, mergeconflict
 
-                // The Inbox folder is always available on all IMAP servers...
                 var inbox = client.Inbox;
                 inbox.Open(FolderAccess.ReadOnly);
-
-                Console.WriteLine("Total messages: {0}", inbox.Count);
-                Console.WriteLine("Recent messages: {0}", inbox.Recent);
 
                 for (int i = 0; i < inbox.Count; i++)
                 {
@@ -39,6 +37,38 @@ namespace MailClient
                 }
                 client.Disconnect(true);
                 return fetchedMails;
+            }
+        }
+
+        public void SendMail()
+        {
+            string[] data = MailVisualObjects.SendMailDialog();
+            if (data != null)
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(Credentials[0]));
+                message.To.Add(new MailboxAddress(data[0]));
+                message.Subject = data[1];
+
+                message.Body = new TextPart("plain")
+                {
+                    Text = data[2]
+                };
+
+                using (var client = new SmtpClient())
+                {
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+
+                    client.Connect("smtp.gmail.com", 587, false);
+
+                    client.AuthenticationMechanisms.Remove("XOAUTH2");
+
+                    client.Authenticate(Credentials[0], Credentials[1]);
+
+                    client.Send(message);
+                    client.Disconnect(true);
+                    MessageBox.Show("E-mail sent successfully.");
+                }
             }
         }
     }

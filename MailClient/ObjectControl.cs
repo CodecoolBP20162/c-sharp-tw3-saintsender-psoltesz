@@ -10,18 +10,38 @@ namespace MailClient
         public MailVisualObjects objects = new MailVisualObjects();
         private ListViewItem selectedItem = new ListViewItem();
 
+
         public void ListMails()
         {
             mailController.StartMailBoxRefreshThread();
             objects.mailListView.Items.Clear();
             FillMailListBox(mailController.GetMailBox());
+            SetSelectedItem();
         }
 
-        public void DisplayMailContent()
+        public string[] GetCredentials()
+        {
+            return mailController.connection.Credentials;
+        }
+
+        public void SetCredentials(string[] credentials)
+        {
+            mailController.connection.Credentials = credentials;
+        }
+
+        private void DisplayMailContent()
         {
             objects.contentBox.Text = mailController.GetItemOnClick(selectedItem).Content;
         }
 
+        private void SetSelectedItem()
+        {
+            try
+            {
+                objects.mailListView.Items.Find(selectedItem.Name, false)[0].Selected = true;
+            }
+            catch { }
+        }
 
         public void FillMailListBox(List<Mail> mailBox)
         {
@@ -31,7 +51,7 @@ namespace MailClient
             {
                 row[0] = item.Sender;
                 row[1] = item.Subject;
-                row[2] = item.Date.ToLongTimeString();
+                row[2] = item.Date.ToLongDateString() + " " + item.Date.ToLongTimeString();
                 ListViewItem listViewItem = new ListViewItem(row);
                 listViewItem.Name = item.ID.ToString();
                 objects.mailListView.Items.Add(listViewItem);

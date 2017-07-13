@@ -8,8 +8,21 @@ namespace MailClient
     class MailData
     {
         private List<Mail> mailBox = new List<Mail>();
-        private object lockObject = new object();
         private int idCounter = 0;
+        public Connection connection = new Connection();
+
+
+        public void AddMail(string sender, string subject, string content, DateTime date)
+        {
+            Mail mail = new Mail(sender, subject, content, date);
+            mail.ID = idCounter++;
+            mailBox.Add(mail);
+        }
+
+        public List<Mail> GetMailBox()
+        {
+            return mailBox;
+        }
 
         public Mail GetItemOnClick(ListViewItem selected)
         {
@@ -30,29 +43,25 @@ namespace MailClient
 
         public void RefreshMailBox()
         {
-            Connection imap = new Connection();
-            lock (lockObject)
+            lock (this)
             {
                 idCounter = 0;
-                List<Mail> temp = imap.GetMails();
-                foreach (Mail item in temp)
+                try
                 {
-                    item.ID = idCounter++;
+                    List<Mail> temp = connection.GetMails();
+                    foreach (Mail item in temp)
+                    {
+                        item.ID = idCounter++;
+                    }
+                    mailBox = temp;
                 }
-                mailBox = temp;
+                catch
+                {
+                    MessageBox.Show("Invalid credentials. Please try again.");
+                    string[] credentials = MailVisualObjects.LoginDialog();
+                    connection.Credentials = credentials;
+                }
             }
-        }
-
-        public void AddMail(string sender, string subject, string content, DateTime date)
-        {
-            Mail mail = new Mail(sender, subject, content, date);
-            mail.ID = idCounter++;
-            mailBox.Add(mail);
-        }
-
-        public List<Mail> GetMailBox()
-        {
-            return mailBox;
         }
     }
 }
