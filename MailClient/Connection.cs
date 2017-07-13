@@ -1,20 +1,17 @@
-﻿using System;
-
-using MailKit.Net.Imap;
-using MailKit.Search;
-using MailKit;
-using MimeKit;
+﻿using MailKit.Net.Imap;
+using System;
 using System.Collections.Generic;
+using MailKit;
 
 namespace MailClient
 {
-    class MailServerConnection
+    class Connection
     {
-        public static List<Mail> Connect()
+        public List<Mail> GetMails(string user, string password)
         {
             using (var client = new ImapClient())
             {
-                List<Mail> mailBox = new List<Mail>();
+                List<Mail> fetchedMails = new List<Mail>();
                 // For demo-purposes, accept all SSL certificates
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
@@ -24,7 +21,8 @@ namespace MailClient
                 // the XOAUTH2 authentication mechanism.
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
 
-                client.Authenticate("codecool.b1ts.pls@gmail.com", "mergeconflict");
+                client.Authenticate(user, password);
+                // "codecool.b1ts.pls@gmail.com", "mergeconflict"
 
                 // The Inbox folder is always available on all IMAP servers...
                 var inbox = client.Inbox;
@@ -36,12 +34,11 @@ namespace MailClient
                 for (int i = 0; i < inbox.Count; i++)
                 {
                     var message = inbox.GetMessage(i);
-                    Mail mail = new Mail(message.From.ToString(), message.Subject, message.Body.ToString(), message.Date.LocalDateTime);
-                    mailBox.Add(mail);
+                    Mail mail = new Mail(message.From.ToString(), message.Subject, message.TextBody, message.Date.LocalDateTime);
+                    fetchedMails.Add(mail);
                 }
-
                 client.Disconnect(true);
-                return mailBox;
+                return fetchedMails;
             }
         }
     }

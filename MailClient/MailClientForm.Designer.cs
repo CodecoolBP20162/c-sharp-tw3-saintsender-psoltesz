@@ -28,7 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.GetMailTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
+            // 
+            // GetMailTimer
+            // 
+            this.GetMailTimer.Interval = 6000;
+            this.GetMailTimer.Tick += new System.EventHandler(this.GetMailTimer_Tick);
             // 
             // MailClientForm
             // 
@@ -43,6 +50,8 @@
         }
 
         #endregion
+
+        private System.Windows.Forms.Timer GetMailTimer;
     }
 }
 

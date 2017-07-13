@@ -1,34 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MailClient
 {
     public partial class MailClientForm : Form
     {
-        MailControl mailController = new MailControl();
+        ObjectControl objectController = new ObjectControl();
 
         public MailClientForm()
         {
             InitializeComponent();
+            objectController.objects.Setup();
+            objectController.AddEventHandlers();
+
+            Controls.Add(objectController.objects.mailListView);
+            Controls.Add(objectController.objects.contentBox);
+
+            objectController.ListMails();
+            GetMailTimer.Start();
+        }
+
+        private void GetMailTimer_Tick(object sender, EventArgs e)
+        {
+            objectController.ListMails();
         }
 
         private void MailClientForm_Load(object sender, EventArgs e)
         {
-            mailController.mailBox = MailServerConnection.Connect();
-
-            mailController.mailListBox.Setup();
-            Controls.Add(mailController.mailListBox.mailListView);
-            mailController.contentBox.Setup();
-            Controls.Add(mailController.contentBox.contentBox);
-
-            mailController.ListMails();
+            string[] credentials = objectController.objects.LoginDialog();
+            // SaveCredentials();
+            // AuthenticateUser();
         }
     }
 }

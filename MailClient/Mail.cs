@@ -8,6 +8,7 @@ namespace MailClient
 {
     class Mail
     {
+        public int ID { get; set; }
         public string Sender { get; set; }
         public string Subject { get; set; }
         public string Content { get; set; }

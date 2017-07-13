@@ -55,6 +55,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Connection.cs" />
+    <Compile Include="UserControl.cs" />
     <Compile Include="Mail.cs" />
     <Compile Include="MailClientForm.cs">
       <SubType>Form</SubType>
@@ -62,10 +64,9 @@
     <Compile Include="MailClientForm.Designer.cs">
       <DependentUpon>MailClientForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MailContentBox.cs" />
-    <Compile Include="MailControl.cs" />
-    <Compile Include="MailListBox.cs" />
-    <Compile Include="MailServerConnection.cs" />
+    <Compile Include="MailData.cs" />
+    <Compile Include="MailVisualObjects.cs" />
+    <Compile Include="ObjectControl.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MailClientForm.resx">
